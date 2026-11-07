@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real Engine & Car Simulator - 3D Transparent Body & Working Fluids</title>
+  <link rel="stylesheet" href="./src/style.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- WebGL 3D Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- Top Floating Camera & Mode Bar -->
+  <div id="top-bar">
+    <button class="top-btn active" id="cam-iso" title="Full Car View">🚗 Full Car</button>
+    <button class="top-btn" id="cam-engine" title="Zoom to Engine Bay">⚙️ Engine Bay</button>
+    <button class="top-btn" id="cam-fluids" title="Focus on Fuel Tank & Pump">⛽ Fuel & Pump</button>
+    <button class="top-btn" id="cam-cockpit" title="Cockpit View">💺 Cockpit</button>
+    <button class="top-btn" id="cam-chassis" title="Underbody & Drivetrain">🔧 Chassis</button>
+    <div style="width: 1px; height: 18px; background: rgba(255,255,255,0.15); margin: 0 4px;"></div>
+    <button class="top-btn" id="btn-dyno-mode" title="Toggle Virtual Dyno Rollers">🔄 Dyno Rollers</button>
+    <button class="top-btn" id="btn-audio" title="Toggle Procedural Audio">🔊 Audio ON</button>
+    <button class="top-btn" id="btn-lighting" title="Toggle Studio Lighting">💡 Studio</button>
+    <button class="top-btn" id="btn-reset-cam" title="Reset Camera">🔄 Reset</button>
+    <button class="top-btn" id="btn-help" title="Keyboard Shortcuts">❓ Help</button>
+  </div>
+
+  <!-- Main UI Overlay -->
+  <div id="ui-root">
+    <!-- Left Control Panel -->
+    <div class="panel" id="left-panel">
+      <!-- Header -->
+      <div class="panel-header">
+        <div class="brand-title">
+          <span>REAL SIMULATOR</span>
+          <span class="brand-badge">TRANSPARENT 3D</span>
+        </div>
+        <div style="font-size: 10px; color: var(--accent-cyan); font-family: var(--font-mono);">v2.4 Pro</div>
+      </div>
+
+      <!-- Engine Power On/Off -->
+      <div class="power-controls">
+        <button class="btn-start" id="btn-engine-start">START ENGINE</button>
+        <button class="btn-stop" id="btn-engine-stop">STOP</button>
+      </div>
+
+      <!-- Engine Configuration -->
+      <div class="section-box">
+        <div class="section-title">
+          <span>Engine Architecture</span>
+          <span id="engine-type-tag" style="font-size: 9px; color: var(--accent-amber);">INLINE-6 3.0L</span>
+        </div>
+        <select class="custom-select" id="engine-select">
+          <option value="i6" selected>Inline-6 (3.0L DOHC 24V - Smooth Straight-6)</option>
+          <option value="i4">Inline-4 (2.0L Turbo 16V - High-Revving)</option>
+          <option value="v8">V8 (5.0L Crossplane 32V - American Muscle)</option>
+          <option value="v12">V12 (6.5L 60° 48V - Exotic Supercar)</option>
+          <option value="boxer4">Boxer-4 (2.5L Horizontally Opposed)</option>
+        </select>
+
+        <!-- Throttle Slider -->
+        <div class="control-row" style="margin-top: 6px;">
+          <div class="control-label">
+            <span>THROTTLE (W / Up Key)</span>
+            <span class="control-val" id="throttle-val">0%</span>
+          </div>
+          <input type="range" id="throttle-slider" min="0" max="100" value="0" />
+        </div>
+      </div>
+
+      <!-- Drivetrain & Transmission -->
+      <div class="section-box">
+        <div class="section-title">
+          <span>Drivetrain & Gearbox</span>
+          <span id="gearbox-mode-label" style="font-size: 9px; color: var(--accent-cyan);">MANUAL 6-SPD</span>
+        </div>
+        
+        <div class="shift-paddles">
+          <button class="paddle-btn" id="btn-shift-down">◀ SHIFT DOWN (Q)</button>
+          <button class="paddle-btn" id="btn-shift-up">SHIFT UP (E) ▶</button>
+        </div>
+
+        <div class="gearbox-grid">
+          <button class="gear-btn" data-gear="-1">R</button>
+          <button class="gear-btn active" data-gear="0">N</button>
+          <button class="gear-btn" data-gear="1">1</button>
+          <button class="gear-btn" data-gear="2">2</button>
+          <button class="gear-btn" data-gear="3">3</button>
+          <button class="gear-btn" data-gear="4">4</button>
+          <button class="gear-btn" data-gear="5">5</button>
+          <button class="gear-btn" data-gear="6">6</button>
+        </div>
+
+        <div class="toggle-row" style="margin-top: 4px;">
+          <span style="color: var(--text-muted); font-size: 11px;">Auto-Clutch System</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-autoclutch" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="control-row" id="clutch-slider-row" style="display: none;">
+          <div class="control-label">
+            <span>CLUTCH (C Key)</span>
+            <span class="control-val" id="clutch-val">100%</span>
+          </div>
+          <input type="range" id="clutch-slider" min="0" max="100" value="100" />
+        </div>
+      </div>
+
+      <!-- Fluid Systems & Pumps -->
+      <div class="section-box">
+        <div class="section-title">
+          <span>Fluids & Pumps</span>
+          <button id="btn-refuel" style="background: rgba(16,185,129,0.2); border: 1px solid var(--accent-green); color: var(--accent-green); font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 3px; cursor: pointer;">REFUEL</button>
+        </div>
+
+        <!-- Fuel Tank Slider -->
+        <div class="control-row">
+          <div class="control-label">
+            <span>FUEL LEVEL</span>
+            <span class="control-val" id="fuel-val">100% (65.0 L)</span>
+          </div>
+          <input type="range" id="fuel-slider" min="0" max="100" value="100" />
+        </div>
+
+        <div class="toggle-row">
+          <span style="color: var(--text-muted); font-size: 11px;">Electric High-Pressure Fuel Pump</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-fuel-pump" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <span style="color: var(--text-muted); font-size: 11px;">Radiator Cooling Fans</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-cooling-fan" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="control-row">
+          <div class="control-label">
+            <span>AMBIENT TEMPERATURE</span>
+            <span class="control-val" id="ambient-temp-val">25 °C</span>
+          </div>
+          <input type="range" id="ambient-slider" min="-10" max="50" value="25" />
+        </div>
+      </div>
+
+      <!-- 3D Visualization & Transparency Modes -->
+      <div class="section-box">
+        <div class="section-title">
+          <span>Body & Transparency</span>
+          <span style="font-size: 9px; color: var(--accent-blue);">X-RAY</span>
+        </div>
+
+        <!-- Car Body Material Mode -->
+        <div class="control-row">
+          <div class="control-label">
+            <span>CAR BODY VISIBILITY</span>
+          </div>
+          <select class="custom-select" id="body-mode-select">
+            <option value="glass" selected>Glass Tinted (Ultra-Clear Transparent)</option>
+            <option value="hologram">Hologram / Neon X-Ray</option>
+            <option value="wireframe">Ghost Wireframe Mesh</option>
+            <option value="solid">Metallic Carbon (Opaque Body)</option>
+            <option value="hidden">Hidden (Mechanicals Only)</option>
+          </select>
+        </div>
+
+        <!-- Exploded View Slider -->
+        <div class="control-row" style="margin-top: 4px;">
+          <div class="control-label">
+            <span>EXPLODED VIEW (X Key)</span>
+            <span class="control-val" id="exploded-val">0%</span>
+          </div>
+          <input type="range" id="exploded-slider" min="0" max="100" value="0" />
+        </div>
+
+        <!-- Subsystem Toggles -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
+          <label style="font-size: 11px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <input type="checkbox" id="toggle-show-engine" checked /> Engine Block
+          </label>
+          <label style="font-size: 11px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <input type="checkbox" id="toggle-show-fluids" checked /> Fuel & Lines
+          </label>
+          <label style="font-size: 11px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <input type="checkbox" id="toggle-show-coolant" checked /> Coolant System
+          </label>
+          <label style="font-size: 11px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <input type="checkbox" id="toggle-show-oil" checked /> Oil Lubrication
+          </label>
+          <label style="font-size: 11px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <input type="checkbox" id="toggle-show-drivetrain" checked /> Transmission
+          </label>
+          <label style="font-size: 11px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <input type="checkbox" id="toggle-show-exhaust" checked /> Exhaust Manifold
+          </label>
+          <label style="font-size: 11px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <input type="checkbox" id="toggle-show-chassis" checked /> Spaceframe Chassis
+          </label>
+          <label style="font-size: 11px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <input type="checkbox" id="toggle-show-wheels" checked /> Wheels & Brakes
+          </label>
+        </div>
+      </div>
+
+      <!-- Simulation Time Scale -->
+      <div class="section-box">
+        <div class="section-title">
+          <span>Time Scale (Slow-Mo)</span>
+          <span id="time-scale-tag" style="font-size: 9px; color: var(--accent-cyan);">1.0x Realtime</span>
+        </div>
+        <div class="time-pills">
+          <div class="time-pill" data-scale="0.1">0.1x</div>
+          <div class="time-pill" data-scale="0.25">0.25x</div>
+          <div class="time-pill" data-scale="0.5">0.5x</div>
+          <div class="time-pill active" data-scale="1">1.0x</div>
+          <div class="time-pill" data-scale="2">2.0x</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right HUD / Telemetry Panel -->
+    <div class="panel" id="right-panel">
+      <!-- Tachometer & Speedometer Hero -->
+      <div class="telemetry-hero">
+        <div class="rpm-gauge-box">
+          <div class="rpm-number" id="hud-rpm">0</div>
+          <div class="rpm-label">ENGINE RPM</div>
+        </div>
+        <div class="speed-box">
+          <div class="speed-number" id="hud-speed">0</div>
+          <div class="speed-label">KM/H</div>
+        </div>
+      </div>
+
+      <!-- Live Performance Stats -->
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-name">Horsepower</span>
+          <span class="stat-val" id="hud-hp">0 HP</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-name">Torque</span>
+          <span class="stat-val" id="hud-torque">0 Nm</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-name">Fuel Flow</span>
+          <span class="stat-val" id="hud-fuel-flow">0.0 L/h</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-name">Fuel Rail</span>
+          <span class="stat-val" id="hud-fuel-pressure">0.0 bar</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-name">Coolant Temp</span>
+          <span class="stat-val" id="hud-coolant-temp">25 °C</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-name">Oil Pressure</span>
+          <span class="stat-val" id="hud-oil-pressure">0.0 bar</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-name">Exhaust Temp</span>
+          <span class="stat-val" id="hud-exhaust-temp">25 °C</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-name">Brake Temp</span>
+          <span class="stat-val" id="hud-brake-temp">25 °C</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-name">Turbo Boost</span>
+          <span class="stat-val" id="hud-boost">-0.75 bar</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-name">Steering Angle</span>
+          <span class="stat-val" id="hud-steer">0.0°</span>
+        </div>
+      </div>
+
+      <!-- Live Dyno Graph -->
+      <div class="section-box">
+        <div class="section-title">
+          <span>Engine Dyno Curves</span>
+          <span style="font-size: 9px; color: var(--accent-red); font-family: var(--font-mono);">🔴 HP  🔵 Nm</span>
+        </div>
+        <canvas class="canvas-plot" id="dyno-canvas" width="308" height="135"></canvas>
+      </div>
+
+      <!-- Cylinder 1 Thermodynamics P-V Indicator -->
+      <div class="section-box">
+        <div class="section-title">
+          <span>Cylinder 1 P-V Thermodynamics</span>
+          <span id="cycle-stroke-label" style="font-size: 9px; color: var(--accent-cyan);">INTAKE</span>
+        </div>
+        <canvas class="canvas-plot" id="pv-canvas" width="308" height="135"></canvas>
+      </div>
+
+      <!-- Fuel & Fluid Circuit 2D Schematic -->
+      <div class="section-box">
+        <div class="section-title">
+          <span>Fuel & Fluid Flow Circuit</span>
+          <span id="pump-status-label" style="font-size: 9px; color: var(--accent-green);">PUMP ACTIVE</span>
+        </div>
+        <canvas class="schematic-canvas" id="schematic-canvas" width="308" height="100"></canvas>
+      </div>
+
+      <!-- Launch Timer Benchmarks -->
+      <div class="section-box">
+        <div class="section-title">
+          <span>Launch Performance Timer</span>
+          <span id="launch-state-badge" style="font-size: 9px; color: var(--text-muted);">STANDBY</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; text-align: center;">
+          <div style="background: rgba(15,23,42,0.7); padding: 6px 4px; border-radius: 4px;">
+            <div style="font-size: 9px; color: var(--text-muted);">0-60 MPH</div>
+            <div style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-cyan); font-size: 13px;" id="stat-0-60">-- s</div>
+          </div>
+          <div style="background: rgba(15,23,42,0.7); padding: 6px 4px; border-radius: 4px;">
+            <div style="font-size: 9px; color: var(--text-muted);">0-100 KM/H</div>
+            <div style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-blue); font-size: 13px;" id="stat-0-100">-- s</div>
+          </div>
+          <div style="background: rgba(15,23,42,0.7); padding: 6px 4px; border-radius: 4px;">
+            <div style="font-size: 9px; color: var(--text-muted);">1/4 MILE</div>
+            <div style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-amber); font-size: 13px;" id="stat-quarter">-- s</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-Time Event & Diagnostic Log -->
+      <div class="section-box">
+        <div class="section-title">
+          <span>System Diagnostics Log</span>
+          <button id="btn-clear-log" style="background: transparent; border: none; color: var(--text-muted); font-size: 9px; cursor: pointer;">CLEAR</button>
+        </div>
+        <div class="event-log-container" id="event-log">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Pedals Overlay -->
+  <div id="pedals-overlay">
+    <div class="pedal-box">
+      <div class="pedal-label">Clutch</div>
+      <div class="pedal-bar-track">
+        <div class="pedal-bar-fill clutch" id="clutch-bar" style="height: 0%;"></div>
+      </div>
+      <div class="pedal-key-hint">C</div>
+    </div>
+    <div class="pedal-box">
+      <div class="pedal-label">Brake</div>
+      <div class="pedal-bar-track">
+        <div class="pedal-bar-fill brake" id="brake-bar" style="height: 0%;"></div>
+      </div>
+      <div class="pedal-key-hint">S / Space</div>
+    </div>
+    <div class="pedal-box">
+      <div class="pedal-label">Gas</div>
+      <div class="pedal-bar-track">
+        <div class="pedal-bar-fill throttle" id="gas-bar" style="height: 0%;"></div>
+      </div>
+      <div class="pedal-key-hint">W / Up</div>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts & Help Modal -->
+  <div class="modal-overlay" id="help-modal">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2 style="font-size: 16px; color: var(--accent-cyan); font-weight: 800;">CONTROLS & SHORTCUTS</h2>
+        <button id="btn-close-modal" style="background: transparent; border: none; color: #fff; font-size: 18px; cursor: pointer;">✖</button>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px; line-height: 1.6;">
+        <div>
+          <div style="font-weight: 700; color: var(--accent-blue); margin-bottom: 4px;">DRIVING CONTROLS:</div>
+          <div><b style="color:#fff;">W / Up Arrow</b> : Throttle (Gas)</div>
+          <div><b style="color:#fff;">S / Down / Space</b> : Brake</div>
+          <div><b style="color:#fff;">E</b> : Shift Up Gear</div>
+          <div><b style="color:#fff;">Q</b> : Shift Down Gear</div>
+          <div><b style="color:#fff;">C</b> : Manual Clutch (Hold)</div>
+          <div><b style="color:#fff;">Enter</b> : Start / Stop Engine</div>
+        </div>
+        <div>
+          <div style="font-weight: 700; color: var(--accent-blue); margin-bottom: 4px;">3D VIEW CONTROLS:</div>
+          <div><b style="color:#fff;">Left Mouse Drag</b> : Orbit / Rotate 360°</div>
+          <div><b style="color:#fff;">Right Mouse Drag</b> : Pan Camera</div>
+          <div><b style="color:#fff;">Mouse Wheel</b> : Zoom In / Out</div>
+          <div><b style="color:#fff;">X Key</b> : Explode / Collapse Internals</div>
+          <div><b style="color:#fff;">1-5 Keys</b> : Quick Camera Views</div>
+        </div>
+      </div>
+      <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 11px; color: var(--text-muted); text-align: center;">
+        Full simulation of 4-stroke combustion, high-pressure fuel rail & pump, dual-circuit radiator coolant flow, engine oil lubrication, spinning drivetrain & disc brake thermo-glow.
+      </div>
+    </div>
+  </div>
+
+  <!-- Main JavaScript App Entry -->
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
+

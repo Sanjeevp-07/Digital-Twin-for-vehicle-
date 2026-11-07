@@ -1,0 +1,26 @@
+{
+  "name": "car-simulator",
+  "version": "1.0.0",
+  "description": "Interactive 3D Transparent Car & Working Engine Simulator with Fluid Systems and Pumps",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host --port 3000",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "threejs",
+    "engine-simulator",
+    "fluid-dynamics",
+    "car-simulator",
+    "webgl"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "vite": "^8.3.6"
+  }
+}
