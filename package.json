@@ -4,15 +4,19 @@
   "description": "Interactive 3D Transparent Car & Working Engine Simulator with Fluid Systems and Pumps",
   "type": "module",
   "scripts": {
+    "start": "node standalone_server.js",
     "dev": "vite --host --port 3000",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "install:all": "npm install && npm --prefix \"Digital Twin\" install",
+    "build:all": "npm run build && npm --prefix \"Digital Twin\" run build"
   },
   "keywords": [
     "threejs",
     "engine-simulator",
     "fluid-dynamics",
     "car-simulator",
+    "digital-twin",
     "webgl"
   ],
   "author": "",

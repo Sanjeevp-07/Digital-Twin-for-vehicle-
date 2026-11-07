@@ -6,6 +6,7 @@ import { EngineModel } from './engine.js';
 import { FluidSystems } from './fluids.js';
 import { CarModel } from './car.js';
 import { UIController } from './ui.js';
+import { VehicleTelematicsGateway } from './telematics.js';
 
 class App {
   constructor() {
@@ -75,6 +76,15 @@ class App {
       this.fluids,
       this.audio,
       this.cameraRig
+    );
+
+    // IoT Connected Vehicle Telematics Gateway
+    this.telematics = new VehicleTelematicsGateway(
+      this.physics,
+      this.car,
+      this.engine,
+      this.fluids,
+      this.ui
     );
 
     // Window Resize

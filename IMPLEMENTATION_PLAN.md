@@ -1,152 +1,131 @@
-# Implementation Plan & Engineering Record: 3D Transparent Car & Engine Simulator
+# Implementation Plan & Engineering Record: Connected Vehicle Simulator & Cloud Digital Twin
 
-> **Project Name:** Real Engine & Car Simulator 3D  
-> **Status:** Phase 1 Complete (Operational v1.0) / Phase 2 in Planning  
-> **Repository:** `Car Simulator`  
-> **Target Platform:** Modern WebGL (Chrome, Edge, Firefox, Brave) & Standalone Local Launcher  
+> **Project Name:** Connected Vehicle Simulator & Cloud-Based Digital Twin Platform  
+> **Status:** Phase 2 Complete (v2.3.0 Universal Clone & Zero-Dependency Execution System)  
+> **Ecosystem Structure:** Two distinct, connected platforms on the same root location:
+> 1. **Virtual Car Simulator (`C:\Users\Sanjeev\OneDrive\Desktop\Car Simulator`)** - Driving controls, 3D physics, engine configurations, fluid cycles, telematics gateway.
+> 2. **Cloud Digital Twin (`C:\Users\Sanjeev\OneDrive\Desktop\Car Simulator\Digital Twin`)** - Pure monitoring NOC observatory, 3D twin mirror, CAN-bus broker, predictive analytics, OBD-II DTC engine.
 
 ---
 
-## 1. System Architecture & Component Mapping
+## 1. Directory & Service Topology
 
 ```
 Car Simulator/
-├── index.html                  # Cyberpunk HUD layout, gauges, canvas plots & modals
-├── vite.config.js              # Vite server configuration & build bundling
-├── package.json                # Project dependencies (Three.js, Vite)
-├── Run_Simulator.bat           # 1-Click Windows launch script
-├── IMPLEMENTATION_PLAN.md      # Living implementation plan & engineering change record
-├── README.md                   # User documentation & controls reference
-├── dist/                       # Minified production build distribution
-└── src/
-    ├── style.css               # Futuristic dark UI theme, glow effects & animations
-    ├── main.js                 # Scene setup, camera presets, lighting & render loop
-    ├── physics.js              # Powertrain math, Otto cycle thermodynamics & fluid rates
-    ├── engine.js               # 3D kinematic engine (crank, rods, pistons, valves, spark)
-    ├── fluids.js               # Fuel tank, high-pressure pump, coolant & oil circuits
-    ├── car.js                  # Transparent GT body, spaceframe chassis, wheels & brakes
-    ├── audio.js                # Web Audio API multi-oscillator procedural synthesizer
-    └── ui.js                   # HUD controller, 2D Canvas dyno/PV charts & keyboard events
+├── index.html                           # Virtual Car Simulator HUD & driving controls (Port 3000)
+├── vite.config.js                       # Vite dev configuration with relative base (Port 3000)
+├── package.json                         # Root package manifest with zero-dependency scripts
+├── START.bat                            # 🚀 Universal Auto-Launcher (Auto-installs & launches)
+├── Run_Without_Node.bat                 # 🪟 Windows Native Zero-Install Runner (No Node.js needed)
+├── start.sh                             # 🐧/🍎 Cross-Platform Launcher for Linux and macOS
+├── standalone_server.js                 # ⚡ Zero-Dependency Node.js server (Built-in http/fs only)
+├── server_powershell.ps1                # Native Windows .NET HttpListener static server
+├── HOW_TO_RUN.md                        # Beginner-friendly step-by-step execution guide
+├── IMPLEMENTATION_PLAN.md               # Living engineering record & milestone history
+├── README.md                            # Driving controls reference & GitHub clone quick start
+├── dist/                                # Pre-bundled production build (portable relative paths)
+├── src/
+│   ├── main.js                          # Scene setup, render loop, camera controllers
+│   ├── car.js                           # Transparent GT body, chassis, wheels & brakes
+│   ├── engine.js                        # 3D kinematic engine (crank, pistons, valves, spark)
+│   ├── fluids.js                        # Fuel, coolant & oil fluid circuits
+│   ├── physics.js                       # Powertrain thermodynamics & gear ratios
+│   ├── audio.js                         # Web Audio procedural engine sound synthesizer
+│   ├── ui.js                            # Driving controls HUD & 2D canvas plots
+│   └── telematics.js                    # High-frequency telematics gateway (30-60 Hz)
+│
+└── Digital Twin/                        # Relocated Digital Twin Platform
+    ├── index.html                       # Monitoring-only NOC observatory dashboard (Port 3001)
+    ├── vite.config.js                   # Vite dev configuration with relative base (Port 3001)
+    ├── package.json                     # Backend & frontend dependencies (three, ws, express, cors, vite)
+    ├── Run_Digital_Twin.bat             # 1-Click Digital Twin launcher (Backend + Dashboard)
+    ├── README.md                        # Digital Twin architecture documentation
+    ├── dist/                            # Pre-bundled production build (portable relative paths)
+    ├── server/
+    │   └── cloud-backend.js             # REST API & WebSocket broker (Port 8080)
+    │                                    # - State shadow tracking
+    │                                    # - OBD-II DTC diagnostic engine
+    │                                    # - Health matrix computation (0-100%)
+    │                                    # - Remaining useful life (RUL) estimation
+    └── src/
+        ├── main.js                      # Ingestion pipeline & sensor data binding
+        ├── twin-3d.js                   # 3D synchronized twin with dynamic block swaps & heat glow
+        ├── charts.js                    # Rolling 4-channel time-series oscilloscope
+        ├── diagnostics.js               # Component health radar & DTC fault logger
+        └── style.css                    # NOC dark cyber telemetry theme
 ```
 
 ---
 
 ## 2. Completed Milestones (Record of Work Done)
 
-### ✅ Milestone 1: Environment & Project Scaffolding
-- Initialized Node/NPM workspace with modern ES modules configuration.
-- Integrated `three` (v0.187.0) and `vite` (v8.3.6).
-- Configured `vite.config.js` for zero-lag local serving with host access on port 3000.
-- Created `Run_Simulator.bat` for one-click Windows execution without requiring terminal interaction.
+### ✅ Milestone 1: Virtual Car Simulation & Kinematics (`Car Simulator/`)
+- **3D Kinematic Engine**: 5 engine architectures (Inline-6, Inline-4, V8, V12, Boxer-4) with realistic slider-crank displacement formulas, rotating crankshaft, oscillating connecting rods, moving pistons, camshafts, and synchronized spark ignition.
+- **Fluid Systems**: Fuel tank with dynamic sloshing fluid level, animated fuel pump, high-pressure fuel rail, coolant loop, and oil lubrication circuit.
+- **Drivetrain & Physics**: 6-speed manual and automatic transmission, clutch slip dynamics, throttle curve, aerodynamic drag, rolling resistance, and dyno rollers.
+- **Procedural Audio**: Web Audio API engine sound synthesis with frequency modulation tracking engine RPM and load.
+- **Exploded View**: Interactive slider smoothly separating engine components along their normal axes for inspection.
 
-### ✅ Milestone 2: Cyberpunk Telemetry HUD & Styling (`index.html`, `style.css`)
-- Recreated the dark scientific aesthetic of combustion sandbox simulators.
-- Designed two primary floating HUD sidebars:
-  - **Left Sidebar**: Engine selector, Start/Stop ignition, Throttle slider, Drivetrain controls, Fluid switches, Transparency selector, and Exploded View slider.
-  - **Right Sidebar**: Digital Tachometer/Speedometer hero display, 8-channel live sensor stats, Dyno Curves Canvas, Thermodynamic P-V Indicator Canvas, Fluid Schematic Canvas, Launch Timer, and Event Log.
-- Added bottom interactive pedals overlay (Gas, Brake, Clutch) with real-time level animations.
+### ✅ Milestone 2: Telematics Gateway (`src/telematics.js`)
+- Engineered real-time transmission of 26 telemetry channels at 30–60 Hz:
+  - Dynamic: `rpm`, `speedKmh`, `gear`, `throttle`, `brake`, `clutch`, `steeringAngle`, `crankAngle`, `wheelAngle`, `explodedFactor`, `dynoRollersActive`.
+  - Powertrain: `horsepower`, `torque`, `boostPressure`, `engineConfig`, `engineConfigName`.
+  - Fluids & Thermals: `fuelLevel`, `fuelFlowRate`, `fuelRailPressure`, `fuelPumpActive`, `coolantTemp`, `oilPressure`, `oilTemp`, `exhaustTemp`, `brakeTemp`.
+  - Odometry: `distanceTraveled`.
+- Dual communication pipeline: WebSocket (`ws://localhost:8080?role=vehicle`) with fallback to browser `BroadcastChannel('connected_car_telematics_stream')` for instant zero-latency cross-tab communication.
 
-### ✅ Milestone 3: Powertrain & Thermodynamic Physics Simulation (`physics.js`)
-- Implemented 5 engine architectures with realistic specifications:
-  - **Inline-6 (3.0L DOHC 24V)**: Smooth straight-6 with 1-5-3-6-2-4 firing order.
-  - **Inline-4 (2.0L Turbo 16V)**: High-revving lightweight engine.
-  - **V8 (5.0L Crossplane 32V)**: Muscle car firing sequence with 90° bank angle.
-  - **V12 (6.5L Supercar 48V)**: Exotic high-RPM configuration with 60° bank angle.
-  - **Boxer-4 (2.5L Flat)**: 180° horizontally opposed flat-four layout.
-- Engineered kinematics formulas for slider-crank piston displacement and connecting rod angularity.
-- Implemented 4-stroke thermodynamic cycle tracking (Intake, Compression, Power, Exhaust) with dynamic cylinder pressure and clearance volume calculations.
-- Implemented transmission physics: 6 forward gear ratios, reverse, neutral, clutch slip/engagement, aerodynamic drag, rolling resistance, and braking deceleration.
-- Integrated thermal physics: Engine block temperature, coolant temperature, oil pressure, exhaust thermal build-up, and brake rotor heating.
-- Integrated automated performance launch timer (0-60 mph, 0-100 km/h, 1/4 mile).
+### ✅ Milestone 3: Cloud Telematics Backend (`Digital Twin/server/cloud-backend.js`)
+- Express REST API & WebSocket server on Port 8080.
+- State Shadow tracking all parameters with timestamps.
+- Rule-based OBD-II Diagnostic Trouble Code (DTC) evaluation:
+  - `P0217`: Engine Coolant Over-Temperature Condition (> 108°C)
+  - `P0524`: Engine Oil Pressure Too Low (< 1.2 bar while running)
+  - `P0087`: Fuel Rail/System Pressure Too Low (< 3.0 bar while active)
+  - `P0234`: Engine Overboost Condition (> 1.85 bar)
+  - `P0500`: Vehicle Speed Sensor Malfunction
+  - `P0300`: Random/Multiple Cylinder Misfire Detected
+- Component Health Matrix calculations (0–100%): Engine Block, Transmission, Brake System, Fuel Injection, Cooling Loop, Lubrication Circuit.
+- Remaining Useful Life (RUL) predictive degradation models.
 
-### ✅ Milestone 4: 3D Procedural Engine Kinematics & Combustion (`engine.js`)
-- Modeled transparent cutaway engine block with cylinder liners.
-- Built counterweighted crankshaft assembly with flywheel and harmonic balancer.
-- Built articulated connecting rods with wrist pins and reciprocating pistons.
-- Built dual overhead camshafts with eccentric lobes depressing intake and exhaust valves.
-- Implemented electric spark ignition flashes and expanding combustion fireballs timed to each cylinder's power stroke.
-- Created dynamic thermal emission shaders on exhaust headers transitioning from dark bronze to cherry red and incandescent orange under sustained load.
+### ✅ Milestone 4: Dedicated Digital Twin Monitoring Dashboard (`Digital Twin/`)
+- **Strict Separation of Concerns**: Zero driving controls on the Digital Twin dashboard. Pure monitoring, telemetry display, and diagnostics observatory.
+- **3D Synchronized Avatar (`src/twin-3d.js`)**:
+  - Live mirror of crankshaft rotation, piston displacement, steering angle, wheel spin, and sloshing fuel level.
+  - Dynamic 3D engine block swapping when the virtual vehicle switches engine configs (I6, I4, V8, V12, Boxer-4).
+  - Dynamic thermal glow on exhaust manifold and brake discs mapped to temperature.
+  - Health X-Ray shader overlay highlighting degraded subsystems in warning yellow or critical red.
+- **Multi-Channel Oscilloscope (`src/charts.js`)**: Rolling 4-channel Canvas time-series plotter displaying RPM, Coolant Temp, Boost Pressure, and Oil Pressure.
+- **Component Health Matrix & Diagnostics (`src/diagnostics.js`)**: Live health percentage gauges, active DTC warnings, and one-click DTC clear actions.
 
-### ✅ Milestone 5: 3D Fluid Systems, Pumps & Particle Streams (`fluids.js`)
-- **Fuel System**:
-  - Transparent rear fuel tank with dynamic liquid level and animated sloshing surface waves.
-  - High-pressure electric fuel pump with spinning internal turbine impeller and glowing green/red status LED.
-  - Transparent fuel line with 70 streaming fluid particles that accelerate with fuel consumption ($L/h$).
-  - Common fuel rail with solenoid injectors that pulse conical fuel spray mists into the intake ports.
-- **Cooling System**:
-  - Front aluminum radiator core with dual electric fans that activate automatically when coolant exceeds $80^\circ\text{C}$.
-  - Centrifugal water pump with spinning impeller.
-  - Blue cold return and crimson hot supply coolant hoses with internal circulation.
-- **Lubrication System**:
-  - Transparent oil pan/sump with golden lubricating oil, engine-driven pump, and oil filter.
-- **Brake Hydraulics**:
-  - Master cylinder on firewall with brake lines branching to all 4 calipers.
+### ✅ Milestone 5: Relocation & Standalone Packaging (`Car Simulator/Digital Twin`)
+- Relocated Digital Twin into user-specified directory: `C:\Users\Sanjeev\OneDrive\Desktop\Car Simulator\Digital Twin`.
+- Installed all dependencies (`three`, `ws`, `express`, `cors`, `vite`).
+- Verified production bundling: `npm run build` completed with 0 errors.
+- Created `Run_Digital_Twin.bat` and updated master desktop launcher `Launch_Full_Connected_System.bat`.
 
-### ✅ Milestone 6: 3D Transparent Car Body, Chassis & Drivetrain (`car.js`)
-- Sculpted aerodynamic sports GT coupe body mesh (hood, splitter, roof, doors, windshield, spoiler, diffuser).
-- Implemented multi-mode body materials:
-  - **Glass Tinted**: Clear physical glass with refraction (`transmission: 0.90`, `ior: 1.48`).
-  - **Hologram X-Ray**: Neon cyan glowing hologram with additive edge lighting.
-  - **Ghost Wireframe**: Engineering wireframe mesh.
-  - **Metallic Carbon**: Gloss finish solid body.
-  - **Hidden**: Fully invisible body for pure mechanical inspection.
-- Tubular spaceframe chassis, roll cage, and front/rear double-wishbone suspension.
-- 4 alloy wheels with rotating rubber tires and ventilated brake rotors that dynamically glow red-hot under hard braking.
-- Transparent 6-speed gearbox casing with meshing internal gears, spinning propeller driveshaft, and rear differential.
-
-### ✅ Milestone 7: Procedural Audio Synthesizer (`audio.js`)
-- Web Audio API real-time synthesis:
-  - Starter motor whining oscillator and cyclic cranking chug.
-  - Multi-harmonic cylinder combustion pulses linked to engine RPM and cylinder count.
-  - Dynamic low-pass filter opening with throttle to simulate mechanical intake roar.
-  - High-RPM rev-limiter fuel cut stutter.
-  - Turbocharger spool whistle and blow-off valve pneumatic hiss on throttle lift-off.
-
-### ✅ Milestone 8: Telemetry Visualizations & Canvas Plots (`ui.js`)
-- **Live Dyno Graph**: Plotted HP and Torque curves with real-time tracer dot.
-- **Cylinder 1 P-V Indicator**: Plotted Otto cycle loop with real-time volume and pressure tracer ball.
-- **2D Fluid Schematic**: Animated flow diagram showing Tank ➔ Pump ➔ Rail ➔ Injectors with pulsating particles.
-- Real-time diagnostic terminal event log with automatic timestamping.
-- Keyboard bindings: `W`/`S` (Gas/Brake), `E`/`Q` (Shift Up/Down), `C` (Clutch), `Enter` (Start/Stop), `X` (Exploded view).
-
-### ✅ Milestone 9: Scene Orchestrator & Camera Rig (`main.js`)
-- OrbitControls with smooth damping and floor limits.
-- Smooth camera preset interpolator: Full Car, Engine Bay Macro, Fuel Tank Zoom, Cockpit POV, and Chassis Underbody.
-- Studio lighting rig (key light, rim cyan, rim amber, engine bay spotlight) and cyber floor grid.
-- Dual exhaust tips emitting exhaust smoke puffs and backfire flame bursts.
+### ✅ Milestone 6: Universal Clone & Zero-Dependency Execution System (v2.3.0)
+- **Zero-Manual-Setup Auto-Launcher (`START.bat`)**:
+  - Checks if Node.js is installed; if not, automatically falls back to Windows native engine.
+  - Detects if `node_modules` is missing; if so, runs `npm install` automatically in background without asking user to type commands.
+  - Launches all 3 services and opens browser.
+- **Windows Built-in Zero-Install Runner (`Run_Without_Node.bat` & `server_powershell.ps1`)**:
+  - Uses Windows native .NET `System.Net.HttpListener` to serve pre-bundled production builds on ports 3000 and 3001.
+  - Requires **zero Node.js, zero Python, zero npm, zero external libraries**.
+  - Telematics syncs seamlessly in real-time across tabs via browser-native `BroadcastChannel`.
+- **Node.js Zero-Dependency Runner (`standalone_server.js`)**:
+  - Uses strictly Node standard library (`http`, `fs`, `path`).
+  - Launches in under 1 second without running `npm install`.
+- **Cross-Platform Launcher (`start.sh`)**:
+  - Handles dependency auto-installation and browser launch on Linux and macOS.
+  - Beginner-Friendly Step-by-Step Documentation (`HOW_TO_RUN.md` & `How to run.md`).
 
 ---
 
-### ✅ Milestone 10: Realistic Sculpted GT Body & Virtual Dyno Rollers (`car.js`)
-- Sculpted aerodynamic curved hood with dual recessed air extraction ducts and power bulge.
-- Carbon-fiber front splitter with aerodynamic canards and central black honeycomb radiator intake.
-- LED projector headlights with luminous cyan DRL eyebrows and real-time spot beams.
-- Panoramic curved windshield and double-bubble aerodynamic roof canopy.
-- Sculpted door panels with deep side air cooling ducts and aerodynamic side-view mirrors.
-- Flared widebody front and rear muscular quarter panel wheel arches.
-- Full-width horizon OLED taillight lightbar with incandescent crimson glow.
-- Carbon fiber rear downforce diffuser with 4 vertical airflow strakes and quad titanium exhaust outlets.
-- Carbon fiber GT rear wing mounted on dual swan-neck aluminum uprights with aerodynamic endplates.
-- **Virtual Chassis Dyno Rollers**: Dual twin rollers embedded under front and rear tires, spinning synchronously with wheel rotation speed.
-- **Active Front-Wheel Steering**: Key-bound (`A`/`D`) steering with auto-centering spring physics and synchronized interior steering wheel rotation.
-- **Turbo Boost Simulation**: Dynamic intake manifold pressure from -0.75 bar (vacuum at idle) up to +1.85 bar under full throttle/boost.
+## 3. Quick Run Summary
 
----
-
-## 3. Upcoming Milestones & Next Enhancements
-
-| Milestone | Feature Description | Priority | Status |
-| :--- | :--- | :--- | :--- |
-| **M11** | **Interactive 3D Raycasting & Tooltips**: Click/hover any 3D component (Fuel Pump, Injector, Piston, Turbo, Caliper) to display a floating inspection card with real-time pressure, temp, and mechanical specs. | High | ⏳ Next |
-| **M14** | **Cross-Sectional Engine Cutaway Plane**: Dynamic clipping plane allowing the user to slice horizontally or vertically through the engine block. | Medium | ⏳ Planned |
-| **M15** | **Standalone Desktop Package**: Portable Electron wrapper or standalone executable for distribution. | Low | ⏳ Planned |
-
----
-
-## 4. Engineering Change Record (Living Changelog)
-
-| Version | Date | Changes & Implementations | Author |
-| :--- | :--- | :--- | :--- |
-| **v1.0.0** | 2026-11-06 | Initial release: Transparent GT car body, 5-engine combustion kinematics, transparent fuel tank, spinning high-pressure fuel pump, coolant/oil systems, dyno & P-V canvas plots, Web Audio API sound engine, and Windows 1-click batch launcher. | Assistant & User |
-| **v1.1.0** | 2026-11-06 | Realistic finished GT supercar body sculpting (curved hood, front splitter with canards, projector headlights, side intakes, flared hips, horizon OLED lightbar, rear diffuser, quad titanium exhausts), active front-wheel steering kinematics with cockpit steering wheel synchronization, virtual chassis dyno rollers, and turbo boost gauge telemetry. | Assistant & User |
-
+| If your user has... | They simply run: | What happens: |
+| :--- | :--- | :--- |
+| **Windows + Any Setup** | Double-click `START.bat` | Auto-detects everything, installs missing packages if needed, launches both dashboards. |
+| **Windows + NO Node.js** | Double-click `Run_Without_Node.bat` | Runs immediately using Windows built-in engine with 0 installations. |
+| **Node.js Installed** | `npm start` | Boots instant zero-dependency standalone servers on ports 3000 and 3001. |
+| **Linux or macOS** | `./start.sh` | Auto-installs missing dependencies and opens both apps in default browser. |

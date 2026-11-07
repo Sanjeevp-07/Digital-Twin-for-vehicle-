@@ -1,0 +1,30 @@
+{
+  "name": "connected-vehicle-digital-twin",
+  "version": "1.0.0",
+  "description": "Cloud-Based Digital Twin for Connected Vehicle Diagnostics and Performance Analytics",
+  "type": "module",
+  "scripts": {
+    "server": "node server/cloud-backend.js",
+    "dashboard": "vite --port 3001 --host",
+    "dev": "node server/cloud-backend.js & vite --port 3001 --host",
+    "build": "vite build"
+  },
+  "keywords": [
+    "digital-twin",
+    "connected-vehicle",
+    "telematics",
+    "automotive-diagnostics",
+    "predictive-maintenance",
+    "threejs"
+  ],
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "three": "^0.187.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "vite": "^8.3.6"
+  }
+}
+

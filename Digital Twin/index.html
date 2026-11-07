@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloud Digital Twin Observatory - Connected Vehicle Telematics & Diagnostics</title>
+  <link rel="stylesheet" href="./src/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app-shell">
+    <!-- Top Cloud Operations Header -->
+    <header>
+      <div class="brand-section">
+        <div class="brand-title">DIGITAL TWIN OBSERVATORY</div>
+        <div class="brand-badge">MONITORING & DIAGNOSTICS ONLY</div>
+        <div class="vehicle-selector">
+          <span style="color:var(--text-muted);">MONITORED VEHICLE:</span>
+          <span style="color:var(--color-cyan); font-weight:700;">AGY-TWIN-2026-X1</span>
+          <span style="color:var(--text-muted); font-size:10px;">(GT-CyberCoupe Pro)</span>
+        </div>
+      </div>
+
+      <div class="connection-status">
+        <div class="status-pill" id="conn-status-pill">
+          <span class="status-dot">●</span>
+          <span id="conn-status-text">CONNECTING TO PHYSICAL CAR...</span>
+        </div>
+        <div>
+          <span style="color:var(--text-muted);">TELEMETRY:</span>
+          <span id="stream-rate" style="color:var(--color-cyan); font-weight:700;">30 Hz</span>
+        </div>
+        <div>
+          <span style="color:var(--text-muted);">PACKETS INGESTED:</span>
+          <span id="packets-count" style="color:#fff; font-weight:700;">0</span>
+        </div>
+        <button id="btn-open-car" style="background:rgba(56,189,248,0.15); border:1px solid var(--border-cyan); color:#fff; font-size:11px; padding:6px 12px; border-radius:4px; cursor:pointer;">🚗 Open Physical Car Cockpit</button>
+      </div>
+    </header>
+
+    <!-- Main Dashboard Grid (Pure Monitoring) -->
+    <main>
+      <!-- Left Column: Synchronized 3D Digital Twin -->
+      <div class="dash-col">
+        <!-- 3D Digital Twin Viewport -->
+        <div class="card" style="flex:1;">
+          <div class="card-header">
+            <div class="card-title">
+              <span>Synchronized 3D Vehicle Twin</span>
+              <span id="vehicle-health-badge" style="font-size:9px; border:1px solid var(--color-green); color:var(--color-green); padding:2px 6px; border-radius:3px;">NORMAL</span>
+            </div>
+            <div style="font-size:10px; color:var(--text-muted); font-family:var(--font-mono);">REAL-TIME MIRROR</div>
+          </div>
+
+          <div id="twin-viewport-container">
+            <div class="viewport-controls">
+              <button class="viewport-btn active" id="btn-cam-iso">Iso</button>
+              <button class="viewport-btn" id="btn-cam-engine">Engine</button>
+              <button class="viewport-btn" id="btn-cam-fuel">Fuel</button>
+              <button class="viewport-btn" id="btn-cam-chassis">Chassis</button>
+              <button class="viewport-btn active" id="btn-toggle-health">Health X-Ray</button>
+            </div>
+          </div>
+
+          <!-- Synchronized Kinematics Strip -->
+          <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:6px; margin-top:4px;">
+            <div style="background:rgba(18,26,40,0.6); padding:8px 4px; border-radius:4px; text-align:center;">
+              <div style="font-size:9px; color:var(--text-muted);">ENGINE RPM</div>
+              <div style="font-family:var(--font-mono); font-size:17px; font-weight:800; color:#fff;" id="twin-rpm">0</div>
+            </div>
+            <div style="background:rgba(18,26,40,0.6); padding:8px 4px; border-radius:4px; text-align:center;">
+              <div style="font-size:9px; color:var(--text-muted);">SPEED</div>
+              <div style="font-family:var(--font-mono); font-size:17px; font-weight:800; color:var(--color-cyan);" id="twin-speed">0 <span style="font-size:10px;">KM/H</span></div>
+            </div>
+            <div style="background:rgba(18,26,40,0.6); padding:8px 4px; border-radius:4px; text-align:center;">
+              <div style="font-size:9px; color:var(--text-muted);">GEAR</div>
+              <div style="font-family:var(--font-mono); font-size:17px; font-weight:800; color:var(--color-blue);" id="twin-gear">N</div>
+            </div>
+            <div style="background:rgba(18,26,40,0.6); padding:8px 4px; border-radius:4px; text-align:center;">
+              <div style="font-size:9px; color:var(--text-muted);">THROTTLE</div>
+              <div style="font-family:var(--font-mono); font-size:17px; font-weight:800; color:var(--color-amber);" id="twin-throttle">0%</div>
+            </div>
+            <div style="background:rgba(18,26,40,0.6); padding:8px 4px; border-radius:4px; text-align:center;">
+              <div style="font-size:9px; color:var(--text-muted);">BOOST</div>
+              <div style="font-family:var(--font-mono); font-size:17px; font-weight:800; color:var(--color-cyan);" id="twin-boost">-0.7 bar</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Synchronized Driver Controls & State Monitor -->
+        <div class="card" style="height:165px;">
+          <div class="card-header">
+            <div class="card-title">Driver Action & Kinematic Status</div>
+            <div style="font-size:9px; color:var(--text-muted); font-family:var(--font-mono);">CAN BUS TELEMETRY</div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:11px;">
+            <div><span style="color:var(--text-muted);">Engine Selected:</span> <b style="color:#fff;" id="twin-engine-name">Inline-6 3.0L DOHC</b></div>
+            <div><span style="color:var(--text-muted);">Steering Angle:</span> <b style="color:var(--color-cyan);" id="twin-steer-angle">0.0°</b></div>
+            <div><span style="color:var(--text-muted);">Driver Brake Force:</span> <b style="color:#fff;" id="twin-brake-force">0%</b></div>
+            <div><span style="color:var(--text-muted);">Driver Clutch:</span> <b style="color:#fff;" id="twin-clutch-pos">0% (Engaged)</b></div>
+            <div><span style="color:var(--text-muted);">Exploded 3D Factor:</span> <b style="color:var(--color-amber);" id="twin-exploded-factor">0% (Collapsed)</b></div>
+            <div><span style="color:var(--text-muted);">Chassis Dyno Mode:</span> <b style="color:#fff;" id="twin-dyno-status">Retracted</b></div>
+            <div><span style="color:var(--text-muted);">Odometer Distance:</span> <b style="color:#fff;" id="twin-odo">0.0 km</b></div>
+            <div><span style="color:var(--text-muted);">Ambient Temp:</span> <b style="color:#fff;" id="twin-ambient">25 °C</b></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Column: Diagnostics, Health Matrix & DTCs -->
+      <div class="dash-col">
+        <!-- Fleet Health Matrix -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Vehicle Health & Reliability Matrix</div>
+            <div style="font-size:10px; color:var(--color-cyan); font-family:var(--font-mono);">MONITORING STREAM</div>
+          </div>
+          <div class="health-matrix">
+            <div class="health-item">
+              <span class="health-label">Overall Health</span>
+              <span class="health-val" id="val-health-overall">100%</span>
+              <div class="health-bar-bg"><div class="health-bar-fill" id="bar-health-overall" style="width:100%;"></div></div>
+            </div>
+            <div class="health-item">
+              <span class="health-label">Powertrain</span>
+              <span class="health-val" id="val-health-powertrain">100%</span>
+              <div class="health-bar-bg"><div class="health-bar-fill" id="bar-health-powertrain" style="width:100%;"></div></div>
+            </div>
+            <div class="health-item">
+              <span class="health-label">Cooling System</span>
+              <span class="health-val" id="val-health-cooling">100%</span>
+              <div class="health-bar-bg"><div class="health-bar-fill" id="bar-health-cooling" style="width:100%;"></div></div>
+            </div>
+            <div class="health-item">
+              <span class="health-label">Fuel Delivery</span>
+              <span class="health-val" id="val-health-fuel">100%</span>
+              <div class="health-bar-bg"><div class="health-bar-fill" id="bar-health-fuel" style="width:100%;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- OBD-II Diagnostic Trouble Codes (DTCs) Scanner -->
+        <div class="card" style="flex:1;">
+          <div class="card-header">
+            <div class="card-title">
+              <span>Active OBD-II Diagnostic Trouble Codes</span>
+              <span id="dtc-count-badge" style="font-size:9px; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:3px;">0 ACTIVE</span>
+            </div>
+            <button id="btn-clear-dtcs" style="background:transparent; border:1px solid var(--border-cyan); color:var(--color-cyan); font-size:10px; padding:3px 8px; border-radius:3px; cursor:pointer;">RESET DTCs</button>
+          </div>
+          <div class="dtc-list" id="dtc-list">
+            <div style="text-align:center; padding:18px 0; color:#10b981; font-family:var(--font-mono); font-size:11px;">
+              ✓ NO ACTIVE FAULT CODES DETECTED (ECU OBD-II OK)
+            </div>
+          </div>
+        </div>
+
+        <!-- Predictive Maintenance & Component Advisory -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Predictive Maintenance & Component RUL</div>
+            <div style="font-size:9px; color:var(--text-muted); font-family:var(--font-mono);">WEAR DEGRADATION MODEL</div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
+            <div style="background:rgba(18,26,40,0.6); padding:8px 10px; border-radius:5px;">
+              <div style="font-size:9px; color:var(--text-muted);">ENGINE OIL SERVICE</div>
+              <div style="font-family:var(--font-mono); font-weight:700; color:#fff; font-size:14px;" id="pm-oil-km">9,850 km</div>
+              <div style="font-size:9px; color:var(--color-green); margin-top:2px;">98.5% Life Remaining</div>
+            </div>
+            <div style="background:rgba(18,26,40,0.6); padding:8px 10px; border-radius:5px;">
+              <div style="font-size:9px; color:var(--text-muted);">BRAKE PAD THICKNESS</div>
+              <div style="font-family:var(--font-mono); font-weight:700; color:#fff; font-size:14px;" id="pm-brake-mm">11.8 mm</div>
+              <div style="font-size:9px; color:var(--color-green); margin-top:2px;">Nominal Thickness</div>
+            </div>
+            <div style="background:rgba(18,26,40,0.6); padding:8px 10px; border-radius:5px;">
+              <div style="font-size:9px; color:var(--text-muted);">COOLANT FLUID</div>
+              <div style="font-family:var(--font-mono); font-weight:700; color:#fff; font-size:14px;" id="pm-coolant-days">340 Days</div>
+              <div style="font-size:9px; color:var(--color-green); margin-top:2px;">Specific Heat OK</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Live Telemetry Streams & CAN-Bus Ingestion -->
+      <div class="dash-col">
+        <!-- Live Multi-Channel Rolling Telemetry Oscilloscope -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Live Telemetry Oscilloscope</div>
+            <div style="font-size:9px; font-family:var(--font-mono);">
+              <span style="color:#00e5ff;">■ RPM</span>
+              <span style="color:#ef4444; margin-left:6px;">■ Coolant</span>
+              <span style="color:#f59e0b; margin-left:6px;">■ Boost</span>
+            </div>
+          </div>
+          <canvas id="telemetry-chart" class="canvas-chart" width="388" height="110"></canvas>
+        </div>
+
+        <!-- Real-Time CAN-Bus Sensor Readings -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Real-Time Sensor Ingestion</div>
+            <div style="font-size:9px; color:var(--color-cyan); font-family:var(--font-mono);">ECU CAN-BUS FRAME</div>
+          </div>
+          <div class="telemetry-grid">
+            <div class="telemetry-item">
+              <span class="t-label">Coolant Temp</span>
+              <span class="t-val" id="sensor-coolant">25.0 °C</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">Oil Pressure</span>
+              <span class="t-val" id="sensor-oil">0.00 bar</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">Fuel Rail Press</span>
+              <span class="t-val" id="sensor-fuel-press">0.00 bar</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">Fuel Flow Rate</span>
+              <span class="t-val" id="sensor-fuel-flow">0.0 L/h</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">Exhaust Temp</span>
+              <span class="t-val" id="sensor-exhaust">25.0 °C</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">Brake Rotor Temp</span>
+              <span class="t-val" id="sensor-brake">25.0 °C</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">Fuel Level</span>
+              <span class="t-val" id="sensor-fuel-level">100% (65.0 L)</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">Fuel Pump State</span>
+              <span class="t-val" id="sensor-pump-state" style="color:var(--color-green);">ACTIVE</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">Horsepower / Torque</span>
+              <span class="t-val" id="sensor-power" style="font-size:12px;">0 HP / 0 Nm</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cloud Telemetry Ingestion Log Console -->
+        <div class="card" style="flex:1;">
+          <div class="card-header">
+            <div class="card-title">Cloud Ingestion Terminal Stream</div>
+            <button id="btn-clear-term" style="background:transparent; border:none; color:var(--text-muted); font-size:9px; cursor:pointer;">CLEAR</button>
+          </div>
+          <div class="terminal-box" id="ingest-log">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
+
